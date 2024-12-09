@@ -359,14 +359,15 @@ class Transport(MackieControlComponent):
 
     def __start_song(self):
         if self.shift_is_pressed():
+            self.song().start_playing()
+        elif self.control_is_pressed():
+            self.song().play_selection()
+        else:
             if not self.song().is_playing:
                 self.song().continue_playing()
             else:
                 self.song().stop_playing()
-        elif self.control_is_pressed():
-            self.song().play_selection()
-        else:
-            self.song().start_playing()
+
 
     def __toggle_follow(self):
         self.song().follow_song = not self.song().follow_song
