@@ -361,12 +361,12 @@ class Transport(MackieControlComponent):
 
     def __start_song(self):
         if self.shift_is_pressed():
-            self.song().start_playing()
+            self.song().continue_playing()
         elif self.control_is_pressed():
             self.song().play_selection()
         else:
             if not self.song().is_playing:
-                self.song().continue_playing()
+                self.song().start_playing()
             else:
                 self.song().stop_playing()
 
@@ -396,16 +396,22 @@ class Transport(MackieControlComponent):
             loop_end = loop_start + loop_length
             current_song_time = self.song().current_song_time
             if current_song_time < loop_start:
-                loop_length = loop_end - current_song_time
-                self.song().loop_length = loop_length
+                target_loop_length = loop_end - current_song_time
+                while self.song().loop_length < target_loop_length:
+                    self.song().loop_length = min(target_loop_length,self.song().song_length-loop_start)
+                self.song().loop_length = target_loop_length
                 self.song().loop_start = current_song_time
             elif loop_start < current_song_time < loop_end:
-                self.song().loop_length =  loop_end - current_song_time
+                target_loop_start = current_song_time
+                while self.song().loop_start < target_loop_start:
+                    self.song().loop_start = min(target_loop_start, self.song().song_length - loop_length)
+                self.song().loop_length = loop_end - current_song_time
                 self.song().loop_start = current_song_time
             elif current_song_time > loop_end:
                 loop_length = current_song_time - loop_end
                 self.song().loop_length = loop_length
                 self.song().loop_start = loop_end
+
 
 
 
