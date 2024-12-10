@@ -141,15 +141,17 @@ class Transport(MackieControlComponent):
         elif switch_id == SID_MARKER_PI:
             if value == BUTTON_PRESSED:
                 if self.control_is_pressed():
-                    self.__set_loopstart_from_cur_position()
-                else:
                     self.__toggle_punch_in()
+                else:
+                    self.__set_loopstart_from_cur_position()
+
         elif switch_id == SID_MARKER_PO:
             if value == BUTTON_PRESSED:
                 if self.control_is_pressed():
-                    self.__set_loopend_from_cur_position()
-                else:
                     self.__toggle_punch_out()
+                else:
+                    self.__set_loopend_from_cur_position()
+
         elif switch_id == SID_MARKER_HOME:
             if value == BUTTON_PRESSED:
                 self.__goto_home()
@@ -388,14 +390,40 @@ class Transport(MackieControlComponent):
         self.song().jump_to_next_cue()
 
     def __set_loopstart_from_cur_position(self):
-        if self.song().current_song_time < self.song().loop_start + self.song().loop_length:
-            old_loop_start = self.song().loop_start
-            self.song().loop_start = self.song().current_song_time
-            self.song().loop_length += old_loop_start - self.song().loop_start
+        if self.song().current_song_time != self.song().loop_start:
+            loop_length = self.song().loop_length
+            loop_start = self.song().loop_start
+            loop_end = loop_start + loop_length
+            current_song_time = self.song().current_song_time
+            if current_song_time < loop_start:
+                loop_length += loop_start - current_song_time
+                self.song().loop_length = loop_length
+                self.song().loop_start = current_song_time
+            elif loop_start < current_song_time < loop_end:
+                self.song().loop_length =  loop_end - current_song_time
+                self.song().loop_start = current_song_time
+            elif current_song_time > loop_end:
+                loop_length = current_song_time - loop_end
+                self.song().loop_length = loop_length
+                self.song().loop_start = loop_end
+
+
 
     def __set_loopend_from_cur_position(self):
-        if self.song().current_song_time > self.song().loop_start:
-            self.song().loop_length = self.song().current_song_time - self.song().loop_start
+        if self.song().current_song_time != self.song().loop_start + self.song().loop_length:
+            loop_length = self.song().loop_length
+            loop_start = self.song().loop_start
+            loop_end = loop_start + loop_length
+            current_song_time = self.song().current_song_time
+            if current_song_time < loop_start:
+                loop_length = loop_start - current_song_time
+                self.song().loop_start = current_song_time
+                self.song().loop_length = loop_length
+            elif loop_start < current_song_time < loop_end:
+                self.song().loop_length =  current_song_time - loop_start
+            elif current_song_time > loop_end:
+                loop_length += current_song_time - loop_end
+                self.song().loop_length = loop_length
 
     def __goto_home(self):
         self.song().current_song_time = 0
