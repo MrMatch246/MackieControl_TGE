@@ -396,7 +396,7 @@ class Transport(MackieControlComponent):
             loop_end = loop_start + loop_length
             current_song_time = self.song().current_song_time
             if current_song_time < loop_start:
-                loop_length += loop_start - current_song_time
+                loop_length = loop_end - current_song_time
                 self.song().loop_length = loop_length
                 self.song().loop_start = current_song_time
             elif loop_start < current_song_time < loop_end:
