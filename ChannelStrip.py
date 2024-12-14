@@ -333,9 +333,12 @@ class ChannelStrip(MackieControlComponent):
                 self.__assigned_track_index()]:
                 self.song().view.selected_track = all_tracks[
                     self.__assigned_track_index()]
-            elif self.application().view.is_view_visible(u'Arranger'):
-                if self.__assigned_track:
-                    self.__assigned_track.view.is_collapsed = not self.__assigned_track.view.is_collapsed
+            elif self.application().view.is_view_visible('Arranger'):
+                pass
+                #Patched out the collapse thing
+                #sys.stderr.write("Not Doing the Collapse thing")
+                #if self.__assigned_track:
+                #    self.__assigned_track.view.is_collapsed = not self.__assigned_track.view.is_collapsed
 
     def __update_arm_led(self):
         track = self.__assigned_track
